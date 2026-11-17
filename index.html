@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en" data-theme="dark"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#09090c">
+<title>Nova AI</title>
+<style>
+:root{--bg:#09090c;--side:#0f0f14;--panel:#17171d;--line:#24242d;--text:#ececf1;--muted:#8d8d9b;--acc:#8b7cf6;--acc2:#6366f1;--user:#1e1e28;--hov:#ffffff12;--inv:#f2f2f5;--invt:#111}
+[data-theme=black]{--bg:#000;--side:#070709;--panel:#111114;--line:#1c1c22;--user:#17171d}
+[data-theme=light]{--bg:#fafafb;--side:#f2f2f6;--panel:#fff;--line:#e3e3ea;--text:#17171c;--muted:#6b6b79;--user:#ebebf4;--hov:#00000010;--inv:#17171c;--invt:#fff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;height:100dvh;overflow:hidden}
+button,input,textarea{font:inherit;color:inherit}button{cursor:pointer;touch-action:manipulation}
+svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.ib{width:40px;height:40px;display:grid;place-items:center;background:transparent;border:0;border-radius:50%;color:var(--muted);padding:0;transition:background .2s,color .2s}
+.ib:hover{background:var(--hov);color:var(--text)}.ib.sm{width:28px;height:28px}.ib.sm svg{width:15px;height:15px}
+/* logo */
+.logo{width:26px;height:26px;display:grid;place-items:center;flex:none}
+.logo i{display:block;width:14px;height:14px;border-radius:3px;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 0 14px #8b7cf655;animation:nv 9s ease-in-out infinite}
+@keyframes nv{0%{transform:rotate(0) scale(1)}28%{transform:rotate(45deg) scale(1)}42%{transform:rotate(45deg) scale(1.16)}56%{transform:rotate(45deg) scale(.94)}66%{transform:rotate(45deg) scale(1)}94%,100%{transform:rotate(0) scale(1)}}
+/* drawer */
+.shade{position:fixed;inset:0;background:#0009;opacity:0;pointer-events:none;transition:opacity .25s;z-index:55}
+.drawer{position:fixed;inset:0 auto 0 0;width:min(292px,86vw);background:var(--side);border-right:1px solid var(--line);transform:translateX(-102%);transition:transform .28s cubic-bezier(.2,.8,.2,1);z-index:60;overflow-y:auto;padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));visibility:hidden}
+body.dopen .drawer{transform:none;visibility:visible}body.dopen .shade{opacity:1;pointer-events:auto}
+.dh{display:flex;align-items:center;gap:10px;padding:4px 6px 10px;font-weight:600;font-size:17px}.dh b{flex:1;font-weight:600}
+.nb{display:flex;align-items:center;gap:12px;width:100%;min-height:42px;padding:8px 12px;border:0;background:transparent;border-radius:10px;text-align:left;color:var(--text);transition:background .15s}
+.nb:hover,.nb.on{background:var(--hov)}.nb svg{color:var(--muted)}.nb em{margin-left:auto;font-style:normal;font-size:11px;color:var(--acc)}
+.lab{padding:14px 12px 4px;color:var(--muted);font-size:12px}.lab small{display:block;font-size:11px;opacity:.8}
+.h{display:flex;align-items:center;border-radius:10px}.h:hover,.h.on{background:var(--hov)}
+.ht{flex:1;min-width:0;border:0;background:none;text-align:left;padding:9px 12px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd{opacity:.5}.empty{color:var(--muted);font-size:13px;padding:8px 12px;margin:0}
+/* layout */
+main{height:100dvh;display:flex;flex-direction:column;transition:margin .28s cubic-bezier(.2,.8,.2,1);min-width:0}
+.top{display:flex;align-items:center;gap:8px;padding:max(6px,env(safe-area-inset-top)) 10px 6px;min-height:52px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:600;font-size:17px;flex:1}
+.chip{font-size:12px;color:var(--acc);background:#8b7cf61c;padding:4px 10px;border-radius:99px}
+.view{flex:1;min-height:0;display:none;flex-direction:column}.view.on{display:flex}
+.wrap{width:min(760px,100%);margin:0 auto;padding:0 14px}
+.scroll{flex:1;overflow-y:auto;overscroll-behavior:contain}.scroll .wrap{min-height:100%;display:flex;flex-direction:column;padding-top:12px;padding-bottom:12px}
+.welcome{margin:auto;text-align:center;padding:20px 0}.welcome h1{font-size:27px;font-weight:550;letter-spacing:-.6px;margin:0 0 20px}
+.sug{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}.sug button{background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:8px 14px;font-size:13px;transition:border-color .2s}.sug button:hover{border-color:var(--acc)}
+#msgs{display:flex;flex-direction:column;gap:16px;margin-top:auto}
+.m{display:flex;flex-direction:column;max-width:92%;animation:in .25s ease-out}.m .b{white-space:pre-wrap;overflow-wrap:anywhere;padding:10px 14px;border-radius:16px}
+.m time{font-size:11px;color:var(--muted);margin:3px 6px 0}
+.m.user{align-self:flex-end;align-items:flex-end}.m.user .b{background:var(--user)}.m.assistant{align-self:flex-start}.m.assistant .b{padding-left:2px}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+.dots{display:flex;gap:5px;padding:14px 2px}.dots i{width:7px;height:7px;border-radius:50%;background:var(--acc);animation:dt 1.1s infinite}.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes dt{0%,60%,100%{opacity:.25;transform:none}30%{opacity:1;transform:translateY(-3px)}}
+/* composer */
+.dock{padding-bottom:max(8px,env(safe-area-inset-bottom))}
+.seg{display:inline-flex;background:var(--panel);border-radius:99px;padding:3px;margin-bottom:8px}
+.seg button{border:0;background:transparent;border-radius:99px;padding:5px 12px;font-size:12.5px;color:var(--muted);transition:background .2s,color .2s}
+.seg button[aria-pressed=true]{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff}
+.files{display:flex;gap:8px;flex-wrap:wrap}.files:not(:empty){margin-bottom:8px}
+.f{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px 4px 4px 4px;max-width:100%}
+.f img{width:40px;height:40px;object-fit:cover;border-radius:8px}.doc{width:40px;height:40px;display:grid;place-items:center;color:var(--muted)}.fn{font-size:13px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.comp{display:flex;align-items:flex-end;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:26px;padding:5px 6px;transition:border-color .2s}.comp:focus-within{border-color:#8b7cf688}
+.comp textarea{flex:1;min-width:0;background:transparent;border:0;outline:0;resize:none;font-size:16px;line-height:1.45;height:24px;max-height:180px;padding:8px 4px}
+.comp .ib{width:38px;height:38px;flex:none}.send{background:var(--inv)!important;color:var(--invt)!important}.send:disabled{opacity:.3;cursor:default}
+.rec{color:#fff!important;background:var(--acc2)!important;animation:pl 1.2s infinite}@keyframes pl{50%{box-shadow:0 0 0 7px #6366f133}}
+.hint{text-align:center;font-size:11.5px;color:var(--muted);margin:8px 0 0}
+/* panels */
+.panel{width:min(680px,100%);margin:0 auto;padding:6px 16px 28px;overflow-y:auto;flex:1}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.ph h2{margin:0;font-size:20px;font-weight:600}
+.in{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 14px;outline:0;font-size:16px;resize:vertical}.in:focus{border-color:#8b7cf688}
+.btn{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border:0;border-radius:10px;padding:9px 16px;font-weight:550;transition:opacity .2s}.btn:hover{opacity:.9}
+.btn.ghost{background:var(--panel);color:var(--text);border:1px solid var(--line)}.btn.danger{background:#c0392b}
+.row{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;align-items:center}
+.res{display:block;width:100%;text-align:left;background:transparent;border:0;border-radius:10px;padding:10px 12px}.res:hover{background:var(--hov)}.res b{display:block;font-weight:550}.res small{color:var(--muted);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.note{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-top:10px}.note p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}.note p.open{display:block}
+.nr{display:flex;align-items:center;gap:4px;margin-top:6px}.nr small{flex:1;color:var(--muted)}.tb{border:0;background:none;color:var(--acc);padding:4px 8px;border-radius:8px}.tb:hover{background:var(--hov)}
+.set{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}.set p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.set:last-child{border:0}.set h3{margin:0;font-size:15px;font-weight:550}
+.sw{width:44px;height:26px;appearance:none;background:var(--line);border-radius:99px;position:relative;transition:background .2s;flex:none;cursor:pointer}.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}.sw:checked{background:var(--acc2)}.sw:checked::after{transform:translateX(18px)}
+.status{color:var(--muted);font-size:14px;margin-top:12px;min-height:20px}
+#toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translate(-50%,10px);background:var(--inv);color:var(--invt);padding:9px 16px;border-radius:99px;font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99;max-width:90vw;text-align:center}#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(min-width:900px){.shade{display:none}body.dopen main{margin-left:292px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<div class="shade" id="shade"></div>
+<aside class="drawer" id="drawer" aria-label="Menu">
+<div class="dh"><span class="logo"><i></i></span><b>Nova AI</b><button class="ib" id="closeBtn" aria-label="Close menu" data-ic="x"></button></div>
+<nav id="nav"></nav>
+<div class="lab">Recent chats<small>Saved in this browser only</small></div><div id="hist"></div>
+</aside>
+<main>
+<header class="top"><button class="ib" id="menuBtn" aria-label="Open menu" aria-expanded="false" data-ic="menu"></button>
+<div class="brand"><span class="logo"><i></i></span>Nova AI</div><span class="chip" id="chip" hidden></span></header>
+
+<section class="view on" id="v-chat">
+<div class="scroll" id="scroll"><div class="wrap"><div class="welcome" id="welcome"><h1 id="greet">How can I help you?</h1><div class="sug" id="sug"></div></div><div id="msgs" aria-live="polite"></div></div></div>
+<div class="dock"><div class="wrap">
+<div class="seg" id="seg" role="group" aria-label="Thinking level"><button data-t="standard">Standard</button><button data-t="harder">Think Harder</button></div>
+<div class="files" id="fl1" data-files></div>
+<div class="comp"><button class="ib" id="plus" aria-label="Attach files" title="Attach files" data-ic="plus"></button>
+<textarea id="ta" rows="1" placeholder="Message Nova AI" aria-label="Message"></textarea>
+<button class="ib" id="mic" aria-label="Voice input" title="Voice input" data-ic="mic"></button>
+<button class="ib send" id="send" aria-label="Send message" title="Send" data-ic="send" disabled></button></div>
+<p class="hint" id="hint"></p></div></div>
+</section>
+
+<section class="view" id="v-search"><div class="panel"><div class="ph"><h2>Search</h2><button class="ib" data-close aria-label="Close" data-ic="x"></button></div>
+<input class="in" id="q" type="search" placeholder="Search titles and messages" aria-label="Search chats"><div id="qres" style="margin-top:10px"></div></div></section>
+
+<section class="view" id="v-image"><div class="panel"><div class="ph"><h2>Create Image</h2><button class="ib" data-close aria-label="Close" data-ic="x"></button></div>
+<textarea class="in" id="imgP" rows="4" placeholder="Describe the image you want"></textarea>
+<div class="row"><button class="btn" id="imgGo">Generate</button></div><p class="status" id="imgOut">Image generation needs a connected AI backend. Nothing is generated or sent from this page.</p></div></section>
+
+<section class="view" id="v-upload"><div class="panel"><div class="ph"><h2 id="upT">Upload &amp; Analyze</h2><button class="ib" data-close aria-label="Close" data-ic="x"></button></div>
+<div class="row"><button class="btn ghost" id="pick">Choose files</button><button class="btn" id="upGo">Analyze</button></div>
+<div class="files" id="fl2" data-files></div><p class="status" id="upOut">Selected files stay on your device. Analysis needs a connected AI backend.</p></div></section>
+
+<section class="view" id="v-lib"><div class="panel"><div class="ph"><h2>Library</h2><button class="ib" data-close aria-label="Close" data-ic="x"></button></div>
+<textarea class="in" id="noteT" rows="3" placeholder="Write a note to save"></textarea>
+<div class="row"><button class="btn" id="noteSave">Save note</button><button class="btn ghost" id="noteCancel" hidden>Cancel edit</button></div>
+<div id="noteList"></div></div></section>
+
+<section class="view" id="v-set"><div class="panel"><div class="ph"><h2>Settings</h2><button class="ib" data-close aria-label="Close" data-ic="x"></button></div>
+<div class="set"><div><h3>Theme</h3></div><div class="seg" id="themeSeg"><button data-th="dark">Dark</button><button data-th="black">Black</button><button data-th="light">Light</button></div></div>
+<div class="set"><div><h3>Sound</h3><p>Soft tone when you send or receive a message.</p></div><input type="checkbox" class="sw" id="sound" aria-label="Sound"></div>
+<div class="set"><div><h3>Chat history</h3><p id="histInfo"></p><p>Stored in this browser with localStorage. It is not synced to any cloud.</p></div><button class="btn danger" id="clearAll">Clear all</button></div>
+<div class="set"><div><h3>About Nova AI</h3><p>Version 1.0.1. Nova uses the connected Gemini service for AI-powered chat replies. File analysis and image generation require separate backend features.</p></div></div></div></section>
+</main>
+<input id="file" type="file" hidden multiple>
+<div id="toast" role="status"></div>
+
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),on=(id,ev,fn)=>{const e=$(id);if(e)e.addEventListener(ev,fn)};
+const P={plus:'<path d="M12 5v14M5 12h14"/>',search:'<path d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM21 21l-5-5"/>',image:'<path d="M4 5h16v14H4zM4 16l5-5 4 4 3-3 4 4"/><path d="M9 9.5h.01"/>',scan:'<path d="M4 8V5h3M17 4h3v3M20 16v3h-3M7 20H4v-3M8 12h8"/>',mic:'<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/>',code:'<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/>',cap:'<path d="M3 8l9-4 9 4-9 4zM7 10v5c0 1.5 2.2 3 5 3s5-1.5 5-3v-5"/>',upload:'<path d="M12 16V4M7 9l5-5 5 5M4 20h16"/>',spark:'<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>',lib:'<path d="M6 4h12v17l-6-4-6 4z"/>',set:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',trash:'<path d="M5 7h14M10 4h4M7 7l1 13h8l1-13"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',send:'<path d="M12 19V5M6 11l6-6 6 6"/>',doc:'<path d="M7 3h7l4 4v14H7zM14 3v4h4"/>'};
+const ic=n=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+(P[n]||'')+'</svg>';
+const load=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
+const store=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){toast('Couldn’t save: browser storage is full or blocked.')}};
+let chats=load('nova_chats',[]),notes=load('nova_notes',[]),S=Object.assign({theme:'dark',sound:false,think:'standard'},load('nova_settings',{}));
+if(!Array.isArray(chats))chats=[];if(!Array.isArray(notes))notes=[];
+let cur=null,log=[],mode='general',files=[],editing=null,busy=false,rec=null,upKind='any',tt;
+const MODES={general:'',coding:'Coding',study:'Study'},ALL='image/*,.pdf,.doc,.docx,.txt,.csv,.md,.js,.py,.html,.css,.json';
+const fmt=t=>t?new Date(t).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'';
+const fmtD=t=>new Date(t).toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'});
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+function toast(t){const e=$('toast');if(!e)return;e.textContent=t;e.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('show'),2800)}
+function beep(f){if(!S.sound)return;try{const a=beep.c||(beep.c=new(window.AudioContext||window.webkitAudioContext)()),o=a.createOscillator(),g=a.createGain();o.frequency.value=f;g.gain.value=.04;o.connect(g);g.connect(a.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+.18);o.stop(a.currentTime+.18)}catch(e){}}
+document.querySelectorAll('[data-ic]').forEach(e=>e.innerHTML=ic(e.dataset.ic));
+
+/* ---------- views & drawer ---------- */
+const desk=window.matchMedia('(min-width:900px)');
+function setDrawer(o){document.body.classList.toggle('dopen',o);$('menuBtn').setAttribute('aria-expanded',o);$('drawer').setAttribute('aria-hidden',!o)}
+const isOpen=()=>document.body.classList.contains('dopen');
+function closeMobile(){if(!desk.matches)setDrawer(false)}
+function show(v){document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));if(v==='search')renderSearch();if(v==='lib')renderLib();if(v==='set')syncSet();
+ document.querySelectorAll('#nav .nb').forEach(b=>b.classList.toggle('on',b.dataset.a===v||(v==='chat'&&b.dataset.a===mode&&mode!=='general')))}
+const MENU=[['new','plus','New Chat'],['search','search','Search'],['image','image','Create Image'],['analyze','scan','Analyze Image'],['voice','mic','Voice'],['coding','code','Coding'],['study','cap','Study'],['upload','upload','Upload & Analyze'],['think','spark','Think Harder'],['lib','lib','Library'],['set','set','Settings']];
+$('nav').innerHTML=MENU.map(m=>'<button class="nb" data-a="'+m[0]+'">'+ic(m[1])+'<span>'+m[2]+'</span>'+(m[0]==='think'?'<em id="tb"></em>':'')+'</button>').join('');
+function act(a){
+ if(a==='new')newChat();else if(a==='search'){show('search');setTimeout(()=>$('q').focus(),60)}
+ else if(a==='image')show('image');else if(a==='analyze')openUpload('image');else if(a==='upload')openUpload('any');
+ else if(a==='voice'){show('chat');mic()}else if(a==='coding'||a==='study')startMode(a);
+ else if(a==='think'){setThink(S.think==='harder'?'standard':'harder');toast(S.think==='harder'?'Think Harder selected (UI only until a backend is connected)':'Standard selected')}
+ else show(a);
+ closeMobile()}
+on('nav','click',e=>{const b=e.target.closest('[data-a]');if(b)act(b.dataset.a)});
+on('menuBtn','click',()=>setDrawer(!isOpen()));on('closeBtn','click',()=>setDrawer(false));on('shade','click',()=>setDrawer(false));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&isOpen()&&!desk.matches)setDrawer(false)});
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>show('chat')));
+let tx=0;const dr=$('drawer');dr.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});dr.addEventListener('touchend',e=>{if(e.changedTouches[0].clientX-tx<-60&&!desk.matches)setDrawer(false)},{passive:true});
+(desk.addEventListener?desk.addEventListener.bind(desk,'change'):desk.addListener.bind(desk))(e=>setDrawer(e.matches));
+
+/* ---------- settings / thinking / modes ---------- */
+const saveS=()=>store('nova_settings',S);
+function applyTheme(){document.documentElement.dataset.theme=S.theme;const m=document.querySelector('meta[name=theme-color]');if(m)m.content=S.theme==='light'?'#fafafb':S.theme==='black'?'#000':'#09090c'}
+function setThink(v){S.think=v;saveS();syncUI()}
+function syncUI(){document.querySelectorAll('#seg [data-t]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===S.think));
+ const tb=$('tb');if(tb)tb.textContent=S.think==='harder'?'On':'';
+ const parts=[MODES[mode],S.think==='harder'?'Think Harder':''].filter(Boolean),c=$('chip');c.hidden=!parts.length;c.textContent=parts.join(' · ');
+ $('hint').textContent='Nova AI replies are powered by Gemini.'+(S.think==='harder'?' Think Harder is a UI selection for now.':'')}
+function syncSet(){document.querySelectorAll('#themeSeg [data-th]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.th===S.theme));$('sound').checked=!!S.sound;$('histInfo').textContent=chats.length+(chats.length===1?' saved chat':' saved chats')}
+on('seg','click',e=>{const b=e.target.closest('[data-t]');if(b)setThink(b.dataset.t)});
+on('themeSeg','click',e=>{const b=e.target.closest('[data-th]');if(b){S.theme=b.dataset.th;saveS();applyTheme();syncSet()}});
+on('sound','change',e=>{S.sound=e.target.checked;saveS();beep(660)});
+on('clearAll','click',()=>{if(!chats.length){toast('No history to clear');return}if(confirm('Delete all saved chats from this browser? This can’t be undone.')){chats=[];store('nova_chats',chats);resetChat();renderHist();syncSet();toast('History cleared')}});
+
+/* ---------- chats ---------- */
+function persist(){store('nova_chats',chats);renderHist()}
+function saveCur(){if(!log.length)return;let c=chats.find(x=>x.id===cur);if(!c){c={id:Date.now(),title:'',messages:log};cur=c.id;chats.push(c)}
+ c.messages=log;c.mode=mode;c.updated=Date.now();c.title=(log.find(m=>m.role==='user')||{text:'New chat'}).text.slice(0,40);persist()}
+function addMsg(m){const d=document.createElement('div'),b=document.createElement('div'),t=document.createElement('time');d.className='m '+m.role;b.className='b';b.textContent=m.text;t.textContent=fmt(m.ts);d.append(b,t);$('msgs').append(d);toEnd();return d}
+function toEnd(){const s=$('scroll');requestAnimationFrame(()=>s.scrollTo({top:s.scrollHeight,behavior:'smooth'}))}
+function renderChat(){$('msgs').innerHTML='';$('welcome').style.display=log.length?'none':'';log.forEach(addMsg)}
+function resetChat(){cur=null;log=[];mode='general';$('ta').value='';grow();renderChat();syncUI()}
+function newChat(){resetChat();show('chat');$('ta').focus()}
+function startMode(m){if(log.length)resetChat();mode=m;syncUI();show('chat');$('ta').focus();toast(MODES[m]+' mode on for this chat')}
+function openChat(id){const c=chats.find(x=>x.id===id);if(!c)return;cur=c.id;log=Array.isArray(c.messages)?c.messages:[];mode=MODES[c.mode]!==undefined?c.mode:'general';renderChat();syncUI();show('chat');closeMobile()}
+function renderHist(){const h=$('hist');h.innerHTML='';if(!chats.length){h.innerHTML='<p class="empty">No saved chats yet</p>';return}
+ chats.slice().sort((a,b)=>(b.updated||b.id)-(a.updated||a.id)).forEach(c=>{const r=document.createElement('div');r.className='h'+(c.id===cur?' on':'');
+  const t=document.createElement('button');t.className='ht';t.dataset.o=c.id;t.textContent=c.title||'New chat';
+  const d=document.createElement('button');d.className='ib sm hd';d.dataset.d=c.id;d.setAttribute('aria-label','Delete chat');d.innerHTML=ic('trash');r.append(t,d);h.append(r)})}
+on('hist','click',e=>{const o=e.target.closest('[data-o]'),d=e.target.closest('[data-d]');
+ if(o)openChat(+o.dataset.o);
+ else if(d){const id=+d.dataset.d;chats=chats.filter(c=>c.id!==id);store('nova_chats',chats);if(id===cur)resetChat();renderHist();toast('Chat deleted')}});
+
+/* ---------- search ---------- */
+function renderSearch(){const q=$('q').value.trim().toLowerCase(),o=$('qres');o.innerHTML='';
+ if(!chats.length){o.innerHTML='<p class="empty">No saved chats to search yet.</p>';return}
+ const hits=chats.filter(c=>!q||(c.title||'').toLowerCase().includes(q)||(c.messages||[]).some(m=>(m.text||'').toLowerCase().includes(q))).sort((a,b)=>(b.updated||b.id)-(a.updated||a.id));
+ if(!hits.length){o.innerHTML='<p class="empty">No chats match “'+q.replace(/[<>&]/g,'')+'”.</p>';return}
+ hits.forEach(c=>{const m=q?(c.messages||[]).find(x=>(x.text||'').toLowerCase().includes(q)):(c.messages||[])[0],b=document.createElement('button'),t=document.createElement('b'),s=document.createElement('small');
+  b.className='res';t.textContent=c.title||'New chat';s.textContent=m?m.text.replace(/\s+/g,' '):'';b.append(t,s);b.addEventListener('click',()=>{openChat(c.id)});o.append(b)})}
+on('q','input',renderSearch);
+
+/* ---------- composer ---------- */
+const ta=$('ta');
+function grow(){ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,180)+'px';$('send').disabled=!ta.value.trim()&&!files.length}
+async function getReply(ctx){
+ const conversation=ctx.messages.map(m=>`${m.role==='assistant'?'Nova':'User'}: ${m.text}`).join('\n\n');
+ const extra=[];
+ if(ctx.mode&&ctx.mode!=='general')extra.push('Selected mode: '+MODES[ctx.mode]+'.');
+ if(ctx.think==='harder')extra.push('The user selected Think Harder. Give a careful, well-explained answer.');
+ const message=[...extra,conversation].filter(Boolean).join('\n\n');
+ const response=await fetch('/.netlify/functions/chat',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({message})
+ });
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok)throw new Error(data.error||`AI request failed (${response.status})`);
+ if(!data.reply||typeof data.reply!=='string')throw new Error(data.error||'The AI service returned an empty reply.');
+ if(ctx.files.length)return data.reply+'\n\nNote: attached files are not analyzed by the current backend yet.';
+ return data.reply;
+}
+async function send(){const t=ta.value.trim();if(!t&&!files.length)return;if(busy){toast('Nova is still replying');return}
+ const names=files.map(x=>x.f.name),L0=log;
+ const um={role:'user',text:t+(names.length?(t?'\n':'')+'Attached: '+names.join(', '):''),ts:Date.now()};
+ $('welcome').style.display='none';log.push(um);addMsg(um);saveCur();beep(520);
+ const ctx={messages:log.slice(),mode,think:S.think,files:names};
+ files.forEach(x=>x.url&&URL.revokeObjectURL(x.url));files=[];renderFiles();ta.value='';grow();
+ const L=log;busy=true;const dots=document.createElement('div');dots.className='m assistant';dots.innerHTML='<div class="dots" aria-label="Nova is thinking"><i></i><i></i><i></i></div>';$('msgs').append(dots);toEnd();
+ let text;try{text=await getReply(ctx)}catch(e){text='Nova connection error: '+(e&&e.message?e.message:'Unknown error')}
+ dots.remove();busy=false;const am={role:'assistant',text,ts:Date.now()};L.push(am);
+ if(log===L){addMsg(am)}persist();beep(700)}
+on('send','click',send);
+ta.addEventListener('input',grow);
+ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();send()}});
+
+/* ---------- files ---------- */
+const fi=$('file');
+function renderFiles(){document.querySelectorAll('[data-files]').forEach(c=>{c.innerHTML='';files.forEach((x,i)=>{const d=document.createElement('div'),n=document.createElement('span'),r=document.createElement('button');d.className='f';
+  if(x.url){const m=document.createElement('img');m.src=x.url;m.alt='';d.append(m)}else{const s=document.createElement('span');s.className='doc';s.innerHTML=ic('doc');d.append(s)}
+  n.className='fn';n.textContent=x.f.name;r.className='ib sm';r.dataset.rm=i;r.setAttribute('aria-label','Remove '+x.f.name);r.innerHTML=ic('x');d.append(n,r);c.append(d)})});grow()}
+function addFiles(list){let skip=0;[...list].forEach(f=>{if(upKind==='image'&&!f.type.startsWith('image/')){skip++;return}files.push({f,url:f.type.startsWith('image/')?URL.createObjectURL(f):''})});if(skip)toast('Only images can be added here');renderFiles()}
+document.addEventListener('click',e=>{const r=e.target.closest('[data-rm]');if(r){const x=files.splice(+r.dataset.rm,1)[0];if(x&&x.url)URL.revokeObjectURL(x.url);renderFiles()}});
+function pickFiles(kind){upKind=kind;fi.accept=kind==='image'?'image/*':ALL;fi.click()}
+fi.addEventListener('change',()=>{addFiles(fi.files);fi.value=''});
+on('plus','click',()=>pickFiles('any'));on('pick','click',()=>pickFiles(upKind));
+function openUpload(k){upKind=k;$('upT').textContent=k==='image'?'Analyze Image':'Upload & Analyze';show('upload')}
+on('upGo','click',()=>{$('upOut').textContent=files.length?files.length+(files.length===1?' file is':' files are')+' ready, but Nova can’t analyze them yet. Analysis needs a connected AI backend. Nothing was uploaded, and the files stay attached to your next chat message.':'Choose at least one file first.'});
+on('imgGo','click',()=>{$('imgOut').textContent=$('imgP').value.trim()?'No image was created. Generation needs a connected AI backend. Your description is still here.':'Describe the image first.'});
+
+/* ---------- voice ---------- */
+function mic(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){toast('Voice input isn’t supported in this browser. Try Chrome, Edge or Safari.');return}
+ if(rec){rec.stop();return}
+ const r=new SR(),base=ta.value;r.lang=navigator.language||'en-US';r.interimResults=true;r.continuous=false;
+ r.onresult=e=>{let s='';for(const x of e.results)s+=x[0].transcript;ta.value=(base?base+' ':'')+s;grow()};
+ r.onend=()=>{rec=null;$('mic').classList.remove('rec')};
+ r.onerror=e=>toast(e.error==='not-allowed'||e.error==='service-not-allowed'?'Microphone access is blocked. Allow it in your browser settings.':e.error==='no-speech'?'No speech heard. Try again.':'Voice input stopped: '+e.error);
+ try{r.start();rec=r;$('mic').classList.add('rec');toast('Listening. Speech is turned into text only.')}catch(e){rec=null;toast('Couldn’t start voice input.')}}
+on('mic','click',mic);
+
+/* ---------- library ---------- */
+const tb=(t,a,id)=>{const b=document.createElement('button');b.className='tb';b.textContent=t;b.dataset.a=a;b.dataset.id=id;return b};
+function renderLib(){const l=$('noteList');l.innerHTML='';if(!notes.length){l.innerHTML='<p class="empty" style="padding-left:0">No notes yet. Write one above to save it on this device.</p>';return}
+ notes.slice().sort((a,b)=>b.ts-a.ts).forEach(n=>{const d=document.createElement('div'),p=document.createElement('p'),r=document.createElement('div'),s=document.createElement('small');
+  d.className='note';p.textContent=n.text;p.dataset.v=n.id;r.className='nr';s.textContent=fmtD(n.ts);r.append(s,tb('Edit','e',n.id),tb('Delete','x',n.id));d.append(p,r);l.append(d)})}
+function endEdit(){editing=null;$('noteT').value='';$('noteSave').textContent='Save note';$('noteCancel').hidden=true}
+on('noteSave','click',()=>{const t=$('noteT').value.trim();if(!t){toast('Write something first');return}
+ if(editing){const n=notes.find(x=>x.id===editing);if(n){n.text=t;n.ts=Date.now()}}else notes.push({id:Date.now(),text:t,ts:Date.now()});
+ store('nova_notes',notes);endEdit();renderLib();toast('Note saved')});
+on('noteCancel','click',endEdit);
+on('noteList','click',e=>{const b=e.target.closest('[data-a]'),v=e.target.closest('[data-v]');
+ if(b){const id=+b.dataset.id;if(b.dataset.a==='x'){if(confirm('Delete this note?')){notes=notes.filter(n=>n.id!==id);store('nova_notes',notes);if(editing===id)endEdit();renderLib()}}
+  else{const n=notes.find(x=>x.id===id);if(n){editing=id;$('noteT').value=n.text;$('noteSave').textContent='Update note';$('noteCancel').hidden=false;$('noteT').focus()}}}
+ else if(v)v.classList.toggle('open')});
+
+/* ---------- init ---------- */
+const G=['How can I help you?','What’s on your mind?','Ask me anything.','What are we working on today?','Ready when you are.'];
+$('greet').textContent=G[Math.floor(Math.random()*G.length)];
+[['Coding','coding'],['Study','study'],['Create an image','image'],['Upload a file','upload']].forEach(s=>{const b=document.createElement('button');b.textContent=s[0];b.addEventListener('click',()=>act(s[1]));$('sug').append(b)});
+applyTheme();syncUI();syncSet();renderHist();renderFiles();setDrawer(desk.matches);grow();
+})();
+</script></body></html>
