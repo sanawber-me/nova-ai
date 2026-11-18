@@ -114,7 +114,7 @@ ANSWER QUALITY:
             { type: "browser_search" }
           ],
           tool_choice: "auto",
-          citation_options: "enabled",
+          citation_options: "disabled",
           reasoning_effort: "low",
           max_completion_tokens: 2048,
           stream: false
